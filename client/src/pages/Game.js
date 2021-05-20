@@ -6,8 +6,11 @@ import API from "../utils/API";
 import "./Game.css"
 
 
-const socket = io("localhost:3002", { transports: ["websocket"] })
-  // document.body.style.background = "white";
+const socket = io(
+  "localhost:3002", 
+  // "https://floating-ravine-14544.herokuapp.com/",
+  { transports: ["websocket"] }
+  )
 
 
 //DECK BUILDER
@@ -36,25 +39,31 @@ class Deck {
   }
 }
 
+let playerOneId;
+let playerTwoId;  
+
 //GAME FUNCTION
 function Game() {
   const cookies = new Cookies();
   const {id} = useParams()
   const room_id = id
 
-  const socket = io("localhost:3002", { 
-    transports: ["websocket"],
-    query: {"param": room_id}
-  })
 
   useEffect(() => {
     API.getGame(room_id)
     .then(res =>{
+      playerOneId = res.data.playerOne
+      playerTwoId = res.data.playerTwo
+      console.log(playerOneId, playerTwoId)
+
       if (res.data.playerOne === cookies.get('user').id) {
         setPlayerState(1)
       } 
       if (res.data.playerTwo === cookies.get('user').id) {
         setPlayerState(2)
+        updateState({...gameState,
+          readyToDeal: true
+        })
       }
     })
   }, [])
@@ -64,12 +73,14 @@ function Game() {
     deck: [],
     discard : [],
     ended: false,
-    finalResult: "",
+    finalScore: "",
+    winner: "",
+    readyToDeal: false,
 
     p1Turn: false,
     p1MustDiscard: false,
     p1DeclaredGin: false,
-    p1DecalerdKnock: false,
+    p1DecalaredKnock: false,
     p1HasKnock: false,
     p1HasGin: false,
     p1Score: 0,
@@ -77,7 +88,7 @@ function Game() {
     p2Turn: false,
     p2MustDiscard: false,
     p2DeclaredGin: false,
-    p2DecalerdKnock: false,
+    p2DecalaerdKnock: false,
     p2HasKnock: false,
     p2HasGin: false,
     p2Score: 0
@@ -88,9 +99,10 @@ function Game() {
     console.log('update_state' + room_id)
   }
 
-  socket.once('update_state' + room_id, function(newState){
+  socket.on('update_state' + room_id, function(newState){
     console.log(newState)
     setGameState(newState)
+    // socket.off('update_state' + room_id)
   })
 
   //PLAYER ONE CARDS STATE
@@ -103,9 +115,10 @@ function Game() {
     socket.emit('update_playerOne', newPlayerOne, room_id)
   }
 
-  socket.once('update_playerOne' + room_id, function(newPlayerOne){
+  socket.on('update_playerOne' + room_id, function(newPlayerOne){
     console.log(newPlayerOne)
     setPlayerOne(newPlayerOne)
+    // socket.off('update_playerOne' + room_id)
   })
 
   //PLAYER TWO CARDS STATE
@@ -118,22 +131,20 @@ function Game() {
     socket.emit('update_playerTwo', newPlayerTwo, room_id)
   }
 
-  socket.once('update_playerTwo' + room_id, function(newPlayerTwo){
+  socket.on('update_playerTwo' + room_id, function(newPlayerTwo){
     console.log("updated Player 2")
     setPlayerTwo(newPlayerTwo)
+    // socket.off('update_playerTwo' + room_id)
   })
 
-  function onDisconnect() {
-
-  }
 
   //CURRENT PLAYER
   const [playerState, setPlayerState] = useState(1)
-
-  function switchPlayer() {
-    if (playerState === 1){setPlayerState(2)}
-    else {setPlayerState(1)}
-  }
+  // TESTING PLAYER SWITCH
+  // function switchPlayer() {
+  //   if (playerState === 1){setPlayerState(2)}
+  //   else {setPlayerState(1)}
+  // }
 
   var currentPlayer 
   if (playerState === 1) {
@@ -185,7 +196,8 @@ function Game() {
 
     updateState({...gameState,
       deck: newDeck.deck,
-      p2Turn: true
+      p2Turn: true,
+      readyToDeal: false
     })  
     updatePlayerOne({...playerOne,
       hand: playerOneDealtHand,
@@ -262,7 +274,6 @@ function Game() {
     if (playerState === 1) {
       updateState({...gameState,
         discard: gameState.discard,
-        p1Hand: currentPlayer.hand,  
         p1MustDiscard: true, 
       })  
       updatePlayerOne({...playerOne,
@@ -303,7 +314,7 @@ function Game() {
 
   function moveRight (event) {
     let index = parseInt(event.target.value)
-    let cardMove= currentPlayer.hand.splice(index, 1)[0]
+    let cardMove = currentPlayer.hand.splice(index, 1)[0]
 
     if(index === currentPlayer.hand.length) {
       currentPlayer.hand.unshift(cardMove)
@@ -423,7 +434,7 @@ function Game() {
   function moveToSet (event) {
     let index = parseInt(event.target.value)
     let setIndex = parseInt(event.target.name)
-    let cardMove= currentPlayer.hand.splice(index, 1)[0]
+    let cardMove = currentPlayer.hand.splice(index, 1)[0]
     currentPlayer.sets[setIndex].push(cardMove)
 
     if (playerState === 1) {
@@ -630,22 +641,30 @@ function Game() {
       if (gameState.p2Score === 0) {
         updateState({...gameState,
           finalResult: `Player Two Scored ${dataScore + 25}`,
+          finalScore: dataScore + 25,
+          winner: playerTwoId,
           ended: true
         }) 
       } else if (gameState.p2Score !== 0) {
         if (dataScore - gameState.p2Score < 0){
           updateState({...gameState,
             finalResult: `Player One Scored ${gameState.p2Score - dataScore}`,
+            finalScore: gameState.p2Score - dataScore,
+            winner: playerOneId,
             ended: true
           }) 
         } else if (dataScore - gameState.p2Score === 0) {
           updateState({...gameState,
             finalResult: `No Points Scored`,
+            finalScore: 0,
+            winner: "none",
             ended: true
           }) 
         } else {
           updateState({...gameState,
-            finalResult: `Player Two Scored ${dataScore - gameState.p2score}`,
+            finalResult: `Player Two Scored ${dataScore - gameState.p2Score}`,
+            finalScore: dataScore - gameState.p2Score,
+            winner: playerTwoId,
             ended: true
           }) 
         }
@@ -654,22 +673,30 @@ function Game() {
       if (gameState.p1Score === 0) {
         updateState({...gameState,
           finalResult: `Player One Scored ${dataScore + 25}`,
+          finalScore: dataScore + 25,
+          winner: playerOneId,
           ended: true
         }) 
       } else if (gameState.p1Score !== 0) {
         if (dataScore - gameState.p1Score < 0){
           updateState({...gameState,
-            finalResult: `Player Two Scored ${gameState.p1score - dataScore}`,
+            finalResult: `Player Two Scored ${gameState.p1Score - dataScore}`,
+            finalScore: gameState.p1Score - dataScore,
+            winner: playerTwoId,
             ended: true
           }) 
         } else if (dataScore - gameState.p1Score === 0) {
           updateState({...gameState,
             finalResult: `No Points Scored`,
+            finalScore: 0,
+            winner: "none",
             ended: true
           }) 
         } else {
           updateState({...gameState,
             finalResult: `Player One Scored ${dataScore - gameState.p1Score}`,
+            finalScore: dataScore - gameState.p1Score,
+            winner: playerOneId,
             ended: true
           }) 
         }
@@ -678,37 +705,77 @@ function Game() {
   } 
 
   function saveAndReturn() {
-    API.updateGame(room_id, {
-      score: gameState.finalResult,
-      isActiveGame: false
-    }).then(() =>
-      window.location.replace('/options/' + cookies.get('user').id)
-    )
+    if (gameState.winner === playerOneId) {
+      API.updateGame(room_id, {
+        score: gameState.finalResult,
+        isActiveGame: false
+      }).then(() =>
+        API.updateUser(playerOneId, {
+          $push: { history: room_id },
+          $inc: { numberOfWins: 1}
+        }).then(() =>
+          API.updateUser(playerTwoId, {
+            $push: { history: room_id },
+            $inc: { numberOfLosses: 1 }
+          }).then(() => window.location.replace('/options/' + playerTwoId)) 
+        )
+      )
+    } else {
+      API.updateGame(room_id, {
+        score: gameState.finalResult,
+        isActiveGame: false
+      }).then(() =>
+        API.updateUser(playerOneId, {
+          $push: { history: room_id },
+          $inc: { numberOfLosses: 1}
+        }).then(() =>
+          API.updateUser(playerTwoId, {
+            $push: { history: room_id },
+            $inc: { numberOfWins: 1 }
+          }).then(() => window.location.replace('/options/' + playerTwoId)) 
+        )
+      )
+    }
   }
 
   function returnHome() {
-    window.location.replace('/options/' + cookies.get('user').id)
+    window.location.replace('/options/' + playerOneId)
   }
 
   //DISPLAY
   return (
     <div className="game-container">
       {gameState.ended ? (
-        <div>
+        <div className="game-content">
           <h2>Game Over</h2>
           <p>{gameState.finalResult}</p>
-          {playerState === 1 ? (<button onClick={saveAndReturn}>Save Game and Return Home</button>) : (<button onClick={returnHome}>Return Home</button>) }
+          {playerState === 1 ? (<button onClick={returnHome}>Return Home</button>) : (<button onClick={saveAndReturn}>Save Game and Return Home</button>) }
           
         </div>
       ) : (
-        <div>
+        <div className="game-content">
           <h2 className="current-player">Current Player: {playerState}</h2>
 
-          {playerState === 1 && currentPlayer.hand.length < 10 ? (
+          {playerState === 1 && gameState.readyToDeal ? (
             <button className="deal-cards" onClick={dealCards}>Deal</button>
           ): (<></>)}
+
+          <div className="current-state">
+            {gameState.p1Turn ? (<h3>Player One's Turn</h3>):(<></>)}
+
+            {gameState.p2Turn ? (<h3>Player Two's Turn</h3>):(<></>)}
+            
+            {gameState.p1HasKnock ? (<h3>Player One has Knocked</h3>):(<></>)}
+
+            {gameState.p2HasKnock ? (<h3>Player Two has Knocked</h3>):(<></>)}
+
+            {gameState.p1HasGin ? (<h3>Player One has Gin</h3>):(<></>)}
+
+            {gameState.p2HasGin ? (<h3>Player Two has Gin</h3>):(<></>)}
+          </div>
           
-          <button className="switch-player" onClick={switchPlayer}>Switch Player</button>
+          {/*TESTING SWITCH PLAYER BUTTON */}
+          {/* <button className="switch-player" onClick={switchPlayer}>Switch Player</button> */}
 
           {/* HAND */}
           
@@ -718,8 +785,17 @@ function Game() {
             {currentPlayer.hand.map((card, index) => (
              <div className="playing-card-bg"> 
               <div className="playing-card">
-                <p className="suit-number">{card.display}</p>
-                <p className="suit-number">{card.suit}</p>
+                {card.suit === '\u2665' || card.suit === '\u2666' ? (
+                  <div>
+                    <p className="suit-number red-suit">{card.display}</p>
+                    <p className="suit-number red-suit">{card.suit}</p>
+                  </div>
+                ) : (
+                  <div>
+                    <p className="suit-number ">{card.display}</p>
+                    <p className="suit-number">{card.suit}</p>
+                  </div>
+                )}
                 <div className="sort-buttons">
                   <button value={index} onClick={moveLeft} className="sort-button">
                     {"<"}
@@ -753,74 +829,101 @@ function Game() {
           
           {/* RENDERS SET DISPLAYS */}
           {currentPlayer.declaredKnock || currentPlayer.declaredGin || currentPlayer.knockedAgainst || currentPlayer.ginAgainst ? (
+            <div>
               <div className="sets">
                 {currentPlayer.sets.map((set, setIndex) => (
-                  <div>
+                  <div className="set">
                     {setIndex === 3 ? (
                       <h3>Unmatched</h3>
                     ) : (
                       <h3>Set {setIndex + 1}</h3>
                     )}
-                    <div className="set">
+                    <div className="set-cards">
                       {set.map((card, cardIndex) => (
                         <div className="playing-card-bg"> 
                         <div className="playing-card">
-                          <p className="suit-number">{card.display}</p>
-                          <p className="suit-number">{card.suit}</p>
-
+                        {card.suit === '\u2665' || card.suit === '\u2666' ? (
+                          <div>
+                            <p className="suit-number red-suit">{card.display}</p>
+                            <p className="suit-number red-suit">{card.suit}</p>
+                          </div>
+                        ) : (
+                          <div>
+                            <p className="suit-number ">{card.display}</p>
+                            <p className="suit-number">{card.suit}</p>
+                          </div>
+                        )}
                           <div className="sort-buttons">
                             <button name={setIndex} value={cardIndex} onClick={setMoveLeft} className="sort-button">
                               {"<"}
                             </button>
-                            <button name={setIndex} value={cardIndex} onClick={backToHand} className="back-to-hand">
-                              back
-                            </button>
+                            
                             <button name={setIndex} value={cardIndex} onClick={setMoveRight} className="sort-button">
                               {">"}
                             </button>
                           </div>
+                            <button name={setIndex} value={cardIndex} onClick={backToHand} className="back-to-hand">
+                              back
+                            </button>
                         </div>
                         </div>
                       ))}
                     </div>
                   </div>
                 ))} 
-                <button onClick={currentPlayer.declaredGin || currentPlayer.declaredKnock ? (declaredSubmitSets) : (rebutleSubmitSets)}>submit Sets</button>
+                
               </div>
+              <button className="submit-sets" onClick={currentPlayer.declaredGin || currentPlayer.declaredKnock ? (declaredSubmitSets) : (rebutleSubmitSets)}>Submit Sets</button>
+            </div>
             ) : (
               <></>
             )  
           }  
 
           <br></br>
-          <div className="generic-left-padding">
-          <h3>TOP DISCARD CARD:</h3> 
-          {gameState.discard.length > 0 ? (
-            <div className="playing-card-bg"> 
-            <div className="playing-card">
-              <p>{gameState.discard[0].display}</p> 
-              <p>{gameState.discard[0].suit}</p>
-            </div>
-            </div>
+          <div>
+            <h3>TOP DISCARD CARD:</h3> 
+              {gameState.discard.length > 0 ? (
+                <div className="hand">
+                  <div className="playing-card-bg"> 
+                    <div className="playing-card">
+                      {gameState.discard[0].suit === '\u2665' || gameState.discard[0].suit === '\u2666' ? (
+                        <div>
+                          <p className="suit-number red-suit">{gameState.discard[0].display}</p>
+                          <p className="suit-number red-suit">{gameState.discard[0].suit}</p>
+                        </div>
+                      ) : (
+                        <div>
+                          <p className="suit-number">{gameState.discard[0].display}</p>
+                          <p className="suit-number">{gameState.discard[0].suit}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>  
           ) : ( 
             <p>No Cards in Discard</p>
           )}
           </div>
           <br></br>
-          <div className="generic-left-padding">
-          {currentPlayer.mustDiscard || !currentPlayer.turn  || currentPlayer.declaredGin  || currentPlayer.declaredKnock ? (
+          <div>
+          {currentPlayer.mustDiscard || !currentPlayer.turn  || currentPlayer.declaredGin  || currentPlayer.declaredKnock || currentPlayer.knockedAgainst || currentPlayer.ginAgainst  ? (
           <h3>Cannot Act</h3>
           ) : (
-          <div>
-            <button className="deck-draw" onClick={deckDraw}>Draw</button>
-            {gameState.discard.length > 0 ? (
-              <button className="deck-discard" onClick={drawDiscard}><span>Draw Discard</span></button>
-              ) : (
-              <p>Can't draw from Discard</p>
-            )}
-            <button onClick={declareKnock}>Knock</button>
-            <button onClick={declareGin}>Declare Gin</button>
-          </div>
+          <div>  
+            <div>
+              <button className="deck-draw" onClick={deckDraw}>Draw</button>
+              {gameState.discard.length > 0 ? (
+                <button className="deck-discard" onClick={drawDiscard}><span>Draw Discard</span></button>
+                ) : (
+                <p>Can't draw from Discard</p>
+              )}
+            </div>
+            <div className="set-btns">  
+              <button className="back-to-hand" onClick={declareKnock}>Knock</button>
+              <button className="back-to-hand" onClick={declareGin}>Declare Gin</button>
+            </div>
+          </div>  
           )}
           </div>
         </div>

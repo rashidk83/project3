@@ -1,7 +1,6 @@
 # Gin
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 
-
 ## Table of Contents
 * [Description](README.md#Description)
 * [Installation](README.md#Installation)
@@ -27,10 +26,8 @@ Following installation, type `npm start` into the terminal in the newly created 
 ![Screenshot of Options Page](./screenshots/options_page.jpg)
 ![Screenshot of Game Page](./screenshots/game_page.jpg)
 
-
 ## URL
 [Live URL to Gin]()
-
 
 ## Contributors
 * Henry Kariuki [Github](https://github.com/rashidk83) [Email](mailto:kariukihenry83@gmail.com)
@@ -38,11 +35,9 @@ Following installation, type `npm start` into the terminal in the newly created 
 * Eric Heltemes [Github](https://github.com/erheltemes)  [Email](mailto:e.heltemes83@gmail.com)
 * Bill Judd [Github](https://github.com/stack-gunnar)  [Email](mailto:juddwilliam13@gmail.com)
 
-
 ## License
 Read more about the license here:
 https://opensource.org/licenses/MIT
-
 
 ### Questions
 If you have any questions, feel free to contact the contributors.
