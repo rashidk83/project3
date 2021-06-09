@@ -19,7 +19,7 @@ function App() {
         <Route path="/stats/:id">
           <Stats />
         </Route>
-        <Route path="/game/:id">
+        <Route path="/game/:room_id/:current_player">
           <Game />
         </Route>
       </Switch>

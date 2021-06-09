@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
 import io from "socket.io-client"
 import { useParams } from 'react-router-dom';
-import Cookies from 'universal-cookie';
+// import Cookies from 'universal-cookie';
 import API from "../utils/API";
 import "./Game.css"
 
   
 const socket = io(
-  // "localhost:3001", 
-  "https://floating-ravine-14544.herokuapp.com/",
+  "localhost:3001", 
+  // "https://floating-ravine-14544.herokuapp.com/",
   { transports: ["websocket"] }
 )
 
@@ -38,36 +38,56 @@ class Deck {
   }
 }
 
+let roomId;
+
 let playerOneId;
-let playerTwoId;  
+let playerTwoId; 
 
 //GAME FUNCTION
 function Game() {
-  const cookies = new Cookies();
-  const {id} = useParams()
-  const room_id = id
-
-
+  const {room_id, current_player} = useParams()
+  // const cookies = new Cookies();
+  //ON MOUNT
   useEffect(() => {
-    API.getGame(room_id)
-    .then(res =>{
+    roomId = room_id
+    setPlayerState(parseInt(current_player))
+
+    console.log(roomId, current_player)
+
+    API.getGame(roomId)
+    .then(res => {
       playerOneId = res.data.playerOne
       playerTwoId = res.data.playerTwo
       console.log(playerOneId, playerTwoId)
-      let userID = cookies.get('user').id
-      console.log(userID)
-
-      if (res.data.playerOne === cookies.get('user').id) {
-        setPlayerState(1)
-      } 
-      if (res.data.playerTwo === cookies.get('user').id) {
-        setPlayerState(2)
+      if (current_player === "2") {
+        console.log({...gameState, readyToDeal: true})
         updateState({...gameState,
           readyToDeal: true
         })
       }
+      // let userID = cookies.get('user').id
+      // console.log(userID)
+
+      // if (res.data.playerOne === cookies.get('user').id) {
+      //   setPlayerState(1)
+      // } 
+      // if (res.data.playerTwo === cookies.get('user').id) {
+      //   setPlayerState(2)
+      //   updateState({...gameState,
+      //     readyToDeal: true
+      //   })
+      // }
     })
   }, [])
+
+    //CURRENT PLAYER
+  const [playerState, setPlayerState] = useState()
+
+  // TESTING PLAYER SWITCH
+  // function switchPlayer() {
+  //   if (playerState === 1){setPlayerState(2)}
+  //   else {setPlayerState(1)}
+  // }
 
   //GAME STATE
   const [gameState, setGameState] = useState({
@@ -102,6 +122,7 @@ function Game() {
 
   socket.on('update_state' + room_id, function(newState){
     console.log(newState)
+    console.log(playerState)
     setGameState(newState)
     // socket.off('update_state' + room_id)
   })
@@ -137,15 +158,6 @@ function Game() {
     setPlayerTwo(newPlayerTwo)
     // socket.off('update_playerTwo' + room_id)
   })
-
-
-  //CURRENT PLAYER
-  const [playerState, setPlayerState] = useState(1)
-  // TESTING PLAYER SWITCH
-  // function switchPlayer() {
-  //   if (playerState === 1){setPlayerState(2)}
-  //   else {setPlayerState(1)}
-  // }
 
   var currentPlayer 
   if (playerState === 1) {
