@@ -33,26 +33,36 @@ mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/cardgame" , {
 // });
 
 //Gypsy Sockets
+// io.on("connection", function(socket){
+//   console.log('made socket connection')
+
+//   socket.on("update_state", function(newState, room_id) {
+//     console.log('update_state' + room_id)
+//     io.sockets.emit('update_state' + room_id, newState)
+//   })
+
+//   socket.on("update_playerOne", function(newPlayerOne, room_id) {
+//     io.sockets.emit('update_playerOne' + room_id, newPlayerOne)
+//   })
+
+//   socket.on("update_playerTwo", function(newPlayerTwo, room_id) {
+//     io.sockets.emit("update_playerTwo" + room_id, newPlayerTwo)
+//   })
+
+//   socket.on("disconnect" , function() {
+//     console.log("disconnected")
+//   })
+// })
+
 io.on("connection", function(socket){
   console.log('made socket connection')
+  const room_id = socket.handshake.query.id
+  socket.join(room_id)
 
-  socket.on("update_state", function(newState, room_id) {
-    console.log('update_state' + room_id)
-    io.sockets.emit('update_state' + room_id, newState)
+  socket.on("send_state", function(newState) {
+    console.log('update_state ' + newState)
+    io.sockets.in(room_id).emit('receive_state', newState)
   })
-
-  socket.on("update_playerOne", function(newPlayerOne, room_id) {
-    io.sockets.emit('update_playerOne' + room_id, newPlayerOne)
-  })
-
-  socket.on("update_playerTwo", function(newPlayerTwo, room_id) {
-    io.sockets.emit("update_playerTwo" + room_id, newPlayerTwo)
-  })
-
-  socket.on("disconnect" , function() {
-    console.log("disconnected")
-  })
-
 })
 
 server.listen(PORT, function() {
