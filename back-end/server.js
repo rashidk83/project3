@@ -60,8 +60,11 @@ io.on("connection", function(socket){
   socket.join(room_id)
 
   socket.on("send_state", function(newState) {
-    console.log('update_state ' + newState)
     io.sockets.in(room_id).emit('receive_state', newState)
+  })
+
+  socket.on("send_hand", function(newHand) {
+    socket.broadcast.to(room_id).emit('receive_hand', newHand)
   })
 })
 

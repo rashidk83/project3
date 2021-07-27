@@ -1,4 +1,4 @@
-import React, { useEffect, useState, createContext, useContext } from "react";
+import React, { useEffect, useState, createContext, useContext, useCallback } from "react";
 import { useSocketContext } from "./SocketContext"
 
 const GameContext = createContext();
@@ -36,10 +36,10 @@ export function useGameContext() {
 export const GameProvider = ({ player, children }) => {
   const socket = useSocketContext()
   const [gameState, setGameState] = useState({
-    deck: new Deck().deck,
+    deck: [],
     discard: [],
 
-    action: "setUp",
+    action: "set-up",
     score: {
       player1: 0,
       player2: 0
@@ -64,11 +64,61 @@ export const GameProvider = ({ player, children }) => {
       setGameState(newState)
     })
 
+    socket.on("receive_hand", (newHand) => {
+      setPlayerState(newHand)
+    })
+
     // return () => socket.off("receive_state")
   }, [socket])
 
+  //DEAL CARDS 
+  useEffect(() => {
+    if (socket == null) return
+    if (player === "1") return
+    console.log(socket)
+    const newState = {...gameState}
+    newState.action = "ready-to-deal"
+    updateGameState(newState) 
+  }, [socket])
+
+  // DEAL
+  function dealCards () {
+    const newDeck = new Deck()
+    const hand1 = []
+    const hand2 = []
+
+    for (var i = 0; i < 10; i++) {
+      let randomNumber = (Math.floor(Math.random()*newDeck.deck.length))
+      let dealtCard = newDeck.deck.splice(randomNumber, 1)
+      hand1.push(dealtCard[0])
+    }  
+
+    for (let i = 0; i < 10; i++) {
+      let randomNumber = (Math.floor(Math.random()*newDeck.deck.length))
+      let dealtCard = newDeck.deck.splice(randomNumber, 1)
+      hand2.push(dealtCard[0])
+    }
+
+    playerState.hand = hand1
+    setPlayerState(playerState)
+
+    const newState = {...gameState} 
+    newState.deck = newDeck
+    newState.action = "player-2-turn"
+    updateGameState(newState)
+
+    const passedHand = {...gameState}
+    passedHand.hand = hand2
+    passedHand.number = "2"
+    updatePlayerState(passedHand)
+  }
+
   function updateGameState(newState) {
     socket.emit("send_state", newState)
+  }
+
+  function updatePlayerState(newHand) {
+    socket.emit("send_hand", newHand)
   }
 
   return (
@@ -78,7 +128,9 @@ export const GameProvider = ({ player, children }) => {
         updateGameState,
 
         playerState,
-        setPlayerState
+        setPlayerState,
+
+        dealCards
       }
     }>
       {children}

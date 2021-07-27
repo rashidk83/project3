@@ -3,7 +3,6 @@ import { useGameContext } from "../../context/GameContext"
 
 function CurrentPlayerBanner () {
   const { playerState, gameState } = useGameContext()
-  console.log(gameState.deck)
 
   return (
     <>

@@ -5,6 +5,8 @@ import { useParams } from 'react-router-dom';
 import ActiveGame from '../../components/gameComponents/ActiveGame'
 import EndGame from '../../components/gameComponents/EndGame'
 import CurrentPlayerBanner from '../../components/gameComponents/CurrentPlayerBanner'
+import PlayerHand from '../../components/gameComponents/PlayerHand'
+import DealButton from '../../components/gameComponents/DealButton'
 
 import { GameProvider } from "../../context/GameContext"
 import { SocketProvider } from "../../context/SocketContext"
@@ -50,7 +52,9 @@ function Game() {
 
     <SocketProvider id={room_id}>
       <GameProvider player={current_player}>
-        <CurrentPlayerBanner/>
+        <CurrentPlayerBanner />
+        <DealButton />
+        <PlayerHand />
       </GameProvider>
     </SocketProvider>
 
