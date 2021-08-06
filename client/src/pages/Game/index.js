@@ -1,14 +1,10 @@
-import React, { 
-  // useState, 
-  useEffect, 
-  // useContext 
-} from "react";
+import React, {  useEffect, } from "react";
 import { useParams } from 'react-router-dom';
-// import Cookies from 'universal-cookie';
 
 import CurrentPlayerBanner from '../../components/gameComponents/CurrentPlayerBanner'
-import PlayerHand from '../../components/gameComponents/PlayerHand'
 import Action from '../../components/gameComponents/Action'
+import PlayerHand from '../../components/gameComponents/PlayerHand'
+import Draw from '../../components/gameComponents/Draw'
 
 import { GameProvider } from "../../context/GameContext"
 import { SocketProvider } from "../../context/SocketContext"
@@ -34,6 +30,7 @@ function Game() {
           <CurrentPlayerBanner />
           <Action />
           <PlayerHand />
+          <Draw />
         </div>
       </GameProvider>
     </SocketProvider>

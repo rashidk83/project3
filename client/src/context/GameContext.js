@@ -100,17 +100,17 @@ export const GameProvider = ({ player, children }) => {
     }
 
     playerState.hand = hand1
-    setPlayerState(playerState)
+    setPlayerState({...playerState})
 
     const newState = {...gameState} 
-    newState.deck = newDeck
+    newState.deck = newDeck.deck
     newState.action = "player-2-turn"
-    updateGameState(newState)
+    updateGameState({...newState})
 
     const passedHand = {...gameState}
     passedHand.hand = hand2
     passedHand.number = "2"
-    updatePlayerState(passedHand)
+    updatePlayerState({...passedHand})
   }
 
   function updateGameState(newState) {
