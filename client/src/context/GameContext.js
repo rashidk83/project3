@@ -107,7 +107,7 @@ export const GameProvider = ({ player, children }) => {
     newState.action = "player-2-turn"
     updateGameState({...newState})
 
-    const passedHand = {...gameState}
+    const passedHand = {...playerState}
     passedHand.hand = hand2
     passedHand.number = "2"
     updatePlayerState({...passedHand})

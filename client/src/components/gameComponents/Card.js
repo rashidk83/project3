@@ -1,6 +1,6 @@
 import React from "react";
 
-function Card({card, index}) {
+function Card({ card, index }) {
 
   return (
     <div className="card" value={index}>
