@@ -74,7 +74,7 @@ export const GameProvider = ({ player, children }) => {
   //DEAL CARDS 
   useEffect(() => {
     if (socket == null) return
-    if (player === "1") return
+    // if (player === "1") return
     console.log(socket)
     const newState = {...gameState}
     newState.action = "ready-to-deal"
