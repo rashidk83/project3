@@ -10,22 +10,20 @@ function PlayerHand() {
   const [draggedCard, setDraggedCard] = useState({ index: null })
 
   const handleDraggedCard = (e) => {
-    console.log(e.target.getAttribute("value"))
     setDraggedCard({ index: e.target.getAttribute("value")})
   }
 
   const handleDrop = (e) => {
     e.preventDefault()
     e.stopPropagation()
-    console.log(e.target)
     const movedCard = playerState.hand.splice(draggedCard.index, 1)[0]
     let newIndex = e.target.getAttribute("value")
     if (draggedCard.index < newIndex) {
       newIndex --
     }
     playerState.hand.splice(newIndex, 0, movedCard)
-    console.log(playerState.hand)
-    setPlayerState({ hand: playerState.hand })
+    console.log({...playerState})
+    setPlayerState({...playerState})
   }
 
   const handleDragOver = (e) => {
@@ -33,20 +31,18 @@ function PlayerHand() {
     e.stopPropagation()
   }
 
-  const handleDragEnter = (e) => {
-    e.preventDefault()
-    e.stopPropagation()
-    console.log(e.target.value)
-  }
+  // const handleDragEnter = (e) => {
+  //   e.preventDefault()
+  //   e.stopPropagation()
+  // }
 
-  const handleDragLeave = (e) => {
-    e.preventDefault()
-    e.stopPropagation()
-    console.log(e)
-  }
+  // const handleDragLeave = (e) => {
+  //   e.preventDefault()
+  //   e.stopPropagation()
+  // }
 
   return (
-    <div className="hand">
+    <div className={playerState.hand.length == 11 ? "hand eleven-cards" : playerState.hand.length == 10 ? "hand ten-cards" : ""}>
       {playerState.hand.map((card, index) => (
         <div className="card-holder"
           key={index}
