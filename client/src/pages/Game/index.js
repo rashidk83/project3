@@ -17,16 +17,27 @@ import "./Game.css"
 function Game() {
   const { room_id, current_player } = useParams()
 
+
+
   useEffect(() => {
 
   }, [])
 
   //DISPLAY
-  return (
+  const game = {
+    padding: "0",
+    margin: "0",
+    boxSizing: "border-box",
+    textAlign: "center",
+    backgroundColor: `rgb(235, 255, 212)`,
+    height: "100%",
+    minHeight: "100vh"
+  } 
 
+  return (
     <SocketProvider id={room_id}>
       <GameProvider player={current_player}>
-        <div className="game">
+        <div style={game}>
           <CurrentPlayerBanner />
           <Action />
           <PlayerHand />
@@ -34,7 +45,6 @@ function Game() {
         </div>
       </GameProvider>
     </SocketProvider>
-
   );
 }
 

@@ -1,66 +1,41 @@
 import React from "react";
 import { useGameContext } from "../../context/GameContext"
-import Card from "./Card"
+import Deck from "./Deck"
+import DiscardPile from "./DiscardPile"
 
 function Draw() {
   const { gameState, playerState, setPlayerState } = useGameContext()
-  console.log(playerState)
 
-  const drawFromDeck = () => {
-    let randomNumber = (Math.floor(Math.random() * gameState.deck.length))
-    let drawnCard = gameState.deck.splice(randomNumber, 1)[0]
-    playerState.hand.push(drawnCard)
-    playerState.mustDiscard = true
-    setPlayerState({ ...playerState })
+  //DISPLAY
+
+  const style = {
+    draw: {
+      margin: "10px"
+    },
+    decks: {
+      margin: "10px",
+      display: "flex",
+      justifyContent: "center"
+    }
   }
 
   return (
-    <div className="draw">
-      {gameState.action === `player-${playerState.number}-turn` && playerState.mustDiscard === false ? (
+    <div style={style.draw}>
+      {gameState.action === `player-${playerState.number}-turn` ? (
         <div>
-          <h2>Please Draw</h2>
-          <div>
-            <button className="deck" onClick={drawFromDeck}>
-              Draw From Deck
-            </button>
-            {gameState.discard.length ? (
-              <div draggable="true">
-                <Card
-                  index={0}
-                  card={gameState.discard[0]}
-                />
-              </div>
-            ) : (
-              <div>
-                <Card
-                  index={null}
-                  card={{ display: "Discard Empty", suit: "" }}
-                />
-              </div>
-            )}
-          </div>
+          {playerState.hand.length === 11 ? (
+            <h2>Please Discard</h2>
+          ) : (
+            <h2>Please Draw</h2>
+          )}
         </div>
       ) : (
-        <div>
-          <div>
-            <div className="deck" onClick={drawFromDeck}>
-              <p>Deck</p>
-            </div>
-            {gameState.discard.length ? (
-              <div className="discard-display">
-                <Card
-                  index={0}
-                  card={gameState.discard[0]}
-                />
-              </div>
-            ) : (
-              <></>
-            )}
-          </div>
-        </div>
+       <div></div>   
       )}
-
-
+      <div style={style.decks}>
+        <Deck />
+        <DiscardPile />
+      </div>
     </div>
   )
 }

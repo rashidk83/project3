@@ -1,77 +1,73 @@
-import React, { useState } from "react";
+import React from "react";
+import { useMediaQuery } from "react-responsive"
 import { useGameContext } from "../../context/GameContext"
 
 import Card from "./Card"
-
-
+import DraggableCard from "./DraggableCard"
 
 function PlayerHand() {
-  const { playerState, setPlayerState, gameState } = useGameContext()
-  const [draggedCard, setDraggedCard] = useState({ index: null })
+  const {
+    gameState, setGameState,
+    playerState, setPlayerState,
+    draggedCard, setDraggedCard,
+  } = useGameContext()
 
-  const handleDraggedCard = (e) => {
-    setDraggedCard({ index: e.target.getAttribute("value")})
-  }
+  //DISPLAY
 
-  const handleDrop = (e) => {
-    e.preventDefault()
-    e.stopPropagation()
-    const movedCard = playerState.hand.splice(draggedCard.index, 1)[0]
-    let newIndex = e.target.getAttribute("value")
-    if (draggedCard.index < newIndex) {
-      newIndex --
+  const mediaQuery = useMediaQuery({ query: '(max-width: 1022px)' })
+
+  const determineWidth = () => {
+    if (playerState.hand.length === 11) {
+      if (mediaQuery) {
+        return "582px"
+      }
+      return "1012px"
     }
-    playerState.hand.splice(newIndex, 0, movedCard)
-    console.log({...playerState})
-    setPlayerState({...playerState})
+    if (playerState.hand.length === 10) {
+      if (mediaQuery) {
+        return "472px"
+      }
+      return "922px"
+    }
+    return
   }
 
-  const handleDragOver = (e) => {
-    e.preventDefault()
-    e.stopPropagation()
+  const style = {
+    hand: {
+      display: "flex",
+      justifyContent: "center",
+      flexWrap: "wrap",
+      margin: "10px auto",
+      border: "solid 1px black",
+      backgroundColor: `rgb(245, 245, 255)`,
+      width: determineWidth()
+    },
+    cardHolder: {
+      display: "flex",
+      position: "relative",
+      margin: "10px 10px",
+    },
   }
-
-  // const handleDragEnter = (e) => {
-  //   e.preventDefault()
-  //   e.stopPropagation()
-  // }
-
-  // const handleDragLeave = (e) => {
-  //   e.preventDefault()
-  //   e.stopPropagation()
-  // }
 
   return (
-    <div className={playerState.hand.length == 11 ? "hand eleven-cards" : playerState.hand.length == 10 ? "hand ten-cards" : ""}>
-      {playerState.hand.map((card, index) => (
-        <div className="card-holder"
-          key={index}
-          value={index}
-          draggable={true}
-          onDragStart={e => handleDraggedCard(e)}
-          onDragOver={handleDragOver}
-        >
-          <Card
-            index={index}
-            card={card}
-          />
-                    <div 
-            className="drop-zone"
-            value={index}
-            // onDragEnter={e => handleDragEnter(e)}
-            // onDragLeave={e => handleDragLeave(e)}
-          >
-            <div className="drop-zone-left"
-              value={index}
-              onDrop={handleDrop}
-            ></div>
-            <div className="drop-zone-right"
-              value={index + 1}
-              onDrop={handleDrop}
-            ></div>
-          </div>
+    <div>
+      {playerState.hand.length !== 0 ? (
+        <div style={style.hand}>
+          {playerState.hand.map((card, index) => (
+            <div 
+              style={style.cardHolder}
+              key={index}
+            >
+              <DraggableCard
+                index={index}
+                card={card}
+              />
+            </div>
+          ))}
         </div>
-      ))}
+      ) : (
+        <></>
+      )}
     </div>
   )
 }

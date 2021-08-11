@@ -54,6 +54,7 @@ export const GameProvider = ({ player, children }) => {
     declaredEnd: false,
     score: 0
   })
+  const [draggedCard, setDraggedCard] = useState({ index: null })
 
   useEffect(() => {
     if (socket == null) return
@@ -124,12 +125,9 @@ export const GameProvider = ({ player, children }) => {
   return (
     <GameContext.Provider value={
       {
-        gameState,
-        updateGameState,
-
-        playerState,
-        setPlayerState,
-
+        gameState, updateGameState,
+        playerState, setPlayerState,
+        draggedCard, setDraggedCard,
         dealCards
       }
     }>
