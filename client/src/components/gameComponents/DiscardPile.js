@@ -1,4 +1,4 @@
-import React, { Switch } from "react";
+import React from "react";
 import { useGameContext } from "../../context/GameContext"
 import Card from "./Card"
 

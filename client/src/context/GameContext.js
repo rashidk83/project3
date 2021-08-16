@@ -69,6 +69,11 @@ export const GameProvider = ({ player, children }) => {
       setPlayerState(newHand)
     })
 
+    socket.on("force_quit", () => {
+      gameState.action = "force_quit"
+      setGameState({...gameState})
+    })
+
     // return () => socket.off("receive_state")
   }, [socket])
 

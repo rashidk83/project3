@@ -1,7 +1,9 @@
 import React from "react";
 import { useGameContext } from "../../context/GameContext"
+
 import Deck from "./Deck"
 import DiscardPile from "./DiscardPile"
+import GoOut from "./GoOut"
 
 function Draw() {
   const { gameState, playerState, setPlayerState } = useGameContext()
@@ -36,6 +38,7 @@ function Draw() {
         <Deck />
         <DiscardPile />
       </div>
+      <GoOut />
     </div>
   )
 }

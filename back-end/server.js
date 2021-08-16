@@ -66,6 +66,11 @@ io.on("connection", function(socket){
   socket.on("send_hand", function(newHand) {
     socket.broadcast.to(room_id).emit('receive_hand', newHand)
   })
+
+  socket.on('disconnect', function () {
+    console.log("disconnected") 
+    io.sockets.in(room_id).emit('force_quit')
+  })
 })
 
 server.listen(PORT, function() {
