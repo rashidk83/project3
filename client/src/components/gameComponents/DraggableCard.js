@@ -2,7 +2,7 @@ import React from "react";
 import Card from "./Card";
 import { useGameContext } from "../../context/GameContext"
 
-function DraggableCard({index, card}) {
+function DraggableCard({index, card, location}) {
   const {
     gameState, setGameState,
     playerState, setPlayerState,
@@ -10,7 +10,10 @@ function DraggableCard({index, card}) {
   } = useGameContext()
 
   const handleDraggedCard = (e) => {
-    setDraggedCard({ index: e.target.getAttribute("value") })
+    setDraggedCard({ 
+      index: e.target.getAttribute("value"),
+      location: e.target.getAttribute("location")
+   })
   }
 
   const handleDragOver = (e) => {
@@ -20,13 +23,30 @@ function DraggableCard({index, card}) {
 
   const handleDragEnter = (e) => {
     e.preventDefault()
-    console.log(e.currentTarget.getAttribute("value"))
-    const movedCard = playerState.hand.splice(draggedCard.index, 1)[0]
-    let newIndex = e.currentTarget.getAttribute("value")
-    playerState.hand.splice(newIndex, 0, movedCard)
-    console.log({ ...playerState })
+    console.log(e.currentTarget.getAttribute("location"))
+    const draggedCardLocationArr = draggedCard.location.split(".") 
+    let draggedCardSchema = playerState
+    draggedCardLocationArr.forEach(ref => {
+      draggedCardSchema = draggedCardSchema[ref]
+    })
+    console.log(draggedCardSchema)
+    const movedCard = draggedCardSchema.splice(draggedCard.index, 1)[0]
+
+    const newIndex = e.currentTarget.getAttribute("value")
+    const newLocation = e.currentTarget.getAttribute("location")
+    let newLocationArr = newLocation.split(".") 
+    let newLocationSchema = playerState
+    newLocationArr.forEach(ref => {
+      newLocationSchema = newLocationSchema[ref]
+    })
+
+    newLocationSchema.splice(newIndex, 0, movedCard)
+
     setPlayerState({ ...playerState })
-    setDraggedCard({ index: newIndex})
+    setDraggedCard({ 
+      index: newIndex,
+      location: newLocation
+    })
   }
 
   //DISPLAY
@@ -40,6 +60,7 @@ function DraggableCard({index, card}) {
     <div
       style={style.draggableCard}
       value = {index}
+      location = {location}
       draggable={true}
       onDragStart={handleDraggedCard}
       onDragOver={handleDragOver} 

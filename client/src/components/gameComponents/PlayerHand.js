@@ -7,7 +7,7 @@ import DraggableCard from "./DraggableCard"
 
 function PlayerHand() {
   const {
-    gameState, setGameState,
+    gameState, updateGameState,
     playerState, setPlayerState,
     draggedCard, setDraggedCard,
   } = useGameContext()
@@ -61,6 +61,7 @@ function PlayerHand() {
               <DraggableCard
                 index={index}
                 card={card}
+                location={"hand"}
               />
             </div>
           ))}

@@ -59,17 +59,17 @@ io.on("connection", function(socket){
   const room_id = socket.handshake.query.id
   socket.join(room_id)
 
-  socket.on("send_state", function(newState) {
-    io.sockets.in(room_id).emit('receive_state', newState)
+  socket.on("send-state", function(newState) {
+    io.sockets.in(room_id).emit('receive-state', newState)
   })
 
-  socket.on("send_hand", function(newHand) {
-    socket.broadcast.to(room_id).emit('receive_hand', newHand)
+  socket.on("send-hand", function(newHand) {
+    socket.broadcast.to(room_id).emit('receive-hand', newHand)
   })
 
   socket.on('disconnect', function () {
     console.log("disconnected") 
-    io.sockets.in(room_id).emit('force_quit')
+    io.sockets.in(room_id).emit('force-quit')
   })
 })
 

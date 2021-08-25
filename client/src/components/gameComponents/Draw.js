@@ -23,9 +23,9 @@ function Draw() {
 
   return (
     <div style={style.draw}>
-      {gameState.action === `player-${playerState.number}-turn` ? (
+      {gameState.action === playerState.number ? (
         <div>
-          {playerState.hand.length === 11 ? (
+          {playerState.action === "discard" ? (
             <h2>Please Discard</h2>
           ) : (
             <h2>Please Draw</h2>

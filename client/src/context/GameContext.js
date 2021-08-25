@@ -1,4 +1,4 @@
-import React, { useEffect, useState, createContext, useContext, useCallback } from "react";
+import React, { useEffect, useState, createContext, useContext } from "react";
 import { useSocketContext } from "./SocketContext"
 
 const GameContext = createContext();
@@ -33,26 +33,23 @@ export function useGameContext() {
   return useContext(GameContext)
 }
 
-export const GameProvider = ({ player, children }) => {
+export const GameProvider = ({ playerNum, children }) => {
   const socket = useSocketContext()
   const [gameState, setGameState] = useState({
     deck: [],
     discard: [],
 
-    action: "set-up",
+    action: "set-up", //"ready-to-deal", "1", "2", "force-quit", "game-ended"
     score: {
       player1: 0,
       player2: 0
     },
   })
   const [playerState, setPlayerState] = useState({
-    number: player,
+    number: playerNum,
     hand: [],
     sets: [[], [], [], []],
-    turn: false,
-    mustDiscard: false,
-    declaredEnd: false,
-    score: 0
+    action: "play" // "discard", "declareSets"
   })
   const [draggedCard, setDraggedCard] = useState({ index: null })
 
@@ -60,17 +57,17 @@ export const GameProvider = ({ player, children }) => {
     if (socket == null) return
     console.log(socket)
 
-    socket.on("receive_state", (newState) => {
+    socket.on("receive-state", (newState) => {
       console.log("receive")
       setGameState(newState)
     })
 
-    socket.on("receive_hand", (newHand) => {
+    socket.on("receive-hand", (newHand) => {
       setPlayerState(newHand)
     })
 
-    socket.on("force_quit", () => {
-      gameState.action = "force_quit"
+    socket.on("force-quit", () => {
+      gameState.action = "force-quit"
       setGameState({...gameState})
     })
 
@@ -110,21 +107,22 @@ export const GameProvider = ({ player, children }) => {
 
     const newState = {...gameState} 
     newState.deck = newDeck.deck
-    newState.action = "player-2-turn"
+    newState.action = "2"
     updateGameState({...newState})
 
-    const passedHand = {...playerState}
-    passedHand.hand = hand2
-    passedHand.number = "2"
-    updatePlayerState({...passedHand})
+    const player2State = {...playerState}
+    player2State.hand = hand2
+    player2State.number = "2"
+    player2State.action = "play"
+    updatePlayerState({...player2State})
   }
 
   function updateGameState(newState) {
-    socket.emit("send_state", newState)
+    socket.emit("send-state", newState)
   }
 
   function updatePlayerState(newHand) {
-    socket.emit("send_hand", newHand)
+    socket.emit("send-hand", newHand)
   }
 
   return (

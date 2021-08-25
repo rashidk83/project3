@@ -5,7 +5,8 @@ function GoOut() {
   const { gameState, playerState, setPlayerState } = useGameContext()
 
   const handleGoOut = () => {
-
+    playerState.action = "declareSets"
+    setPlayerState({...playerState})
   }
 
   // DISPLAY
@@ -26,7 +27,7 @@ function GoOut() {
 
   return (
     <div style={style.container}>
-      {gameState.action === `player-${playerState.number}-turn` && playerState.hand.length === 10 ? (
+      {gameState.action === playerState.number && playerState.action === "play" ? (
         <div 
           style={style.goOut}
           onClick={handleGoOut}

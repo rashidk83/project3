@@ -9,7 +9,9 @@ function Deck() {
   const drawFromDeck = () => {
     let randomNumber = (Math.floor(Math.random() * gameState.deck.length))
     let drawnCard = gameState.deck.splice(randomNumber, 1)[0]
+
     playerState.hand.push(drawnCard)
+    playerState.action = "discard"
     setPlayerState({ ...playerState })
   }
 
@@ -22,7 +24,7 @@ function Deck() {
 
   return (
     <div style={style.deck}>
-      {gameState.action === `player-${playerState.number}-turn` && playerState.hand.length === 10 ? (
+      {gameState.action === playerState.number && playerState.action === "play" ? (
         <div 
           style={{ cursor: "pointer" }}
           onClick={drawFromDeck}

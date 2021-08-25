@@ -7,6 +7,7 @@ function Action() {
   return (
     <div className="action">
       <p>{gameState.action}</p>
+      <p>{playerState.action}</p>
       {gameState.action === "ready-to-deal" && playerState.number === "1" ? (
         <button onClick={dealCards}>DEAL</button>
       ) : (

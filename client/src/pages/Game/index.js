@@ -18,7 +18,7 @@ function GamePage() {
 
   return (
     <SocketProvider id={room_id}>
-      <GameProvider player={current_player}>
+      <GameProvider playerNum={current_player}>
         <Game />
       </GameProvider>
     </SocketProvider>

@@ -17,10 +17,15 @@ function DiscardPile() {
   const handleDrop = (e) => {
     const movedCard = playerState.hand.splice(draggedCard.index, 1)[0]
     gameState.discard.unshift(movedCard)
+
+    //retrun to "play" state becasue card was discarded
+    playerState.action = "play"
+
+    //Passes Turn
     if (playerState.number === "1") {
-      gameState.action = "player-2-turn"
+      gameState.action = "2"
     } else {
-      gameState.action = "player-1-turn"
+      gameState.action = "1"
     }
     
     updateGameState({...gameState})
@@ -30,6 +35,8 @@ function DiscardPile() {
 
   const handleDraw = () => {
     const movedCard = gameState.discard.splice(0,1)[0]
+
+    playerState.action = "discard"
     playerState.hand.push(movedCard)
 
     updateGameState({...gameState})
@@ -38,11 +45,11 @@ function DiscardPile() {
 
   //DISPLAY 
 
-  const Stuff = ({children}) => {
+  const ConditionalContainer = ({children}) => {
     //If player's turn
-    if (gameState.action === `player-${playerState.number}-turn`) {
+    if (gameState.action === playerState.number) {
       //If 10 card's in Hand and discard not empty
-      if(playerState.hand.length === 10 && gameState.discard.length !== 0) {
+      if(playerState.action === "play" && gameState.discard.length !== 0) {
         return (
           <div 
             style={{cursor: "pointer"}}
@@ -52,7 +59,7 @@ function DiscardPile() {
           </div>
         )
       }
-      if(playerState.hand.length === 11) {
+      if(playerState.action === "discard") {
         return (
           <div 
             onDragOver={handleDragOver} 
@@ -80,7 +87,7 @@ function DiscardPile() {
 
   return (
     <div style={style.discardPile}>
-      <Stuff>
+      <ConditionalContainer>
         {gameState.discard.length ? (
           <div>
             <Card
@@ -89,11 +96,11 @@ function DiscardPile() {
           </div>
         ) : (
           <Card
-            display="Discard Empty"S
+            display="Discard Empty"
             suit=""
           />
         )}
-      </Stuff>
+      </ConditionalContainer>
     </div>
   )
 }
