@@ -1,7 +1,9 @@
 import React from "react";
 import { useGameContext } from "../../context/GameContext"
+import { useMediaQuery } from "react-responsive"
 
 import DraggableCard from "./DraggableCard"
+import CardContainer from "./CardContainer";
 import Card from "./Card"
 
 function Sets() {
@@ -11,20 +13,18 @@ function Sets() {
     draggedCard, setDraggedCard,
   } = useGameContext()
 
-  const handleDragOver = (e) => {
-    e.preventDefault()
-    e.stopPropagation()
-  }
-
-  const handleDrop = (e, setIndex) => {
-    const movedCard = playerState.hand.splice(draggedCard.index, 1)[0]
-
-    playerState.sets[setIndex].push(movedCard)
-
-    setPlayerState({...playerState})
-  }
-
   // DISPLAY
+
+  const mediaQuery = useMediaQuery({ query: '(max-width: 1022px)' })
+
+  const determineSetWidth = (ref) => {
+    if (ref.length === 0) return "112px"
+    if (mediaQuery) {
+      return `${Math.ceil(ref.length / 2) * 90 + 22}px`
+    }
+    return `${ref.length * 90 + 22}px`
+  }
+
   const style = {
     setsContainer: {
       display: "flex",
@@ -36,15 +36,11 @@ function Sets() {
     },
     setContainer: {
       margin: "10px auto",
-      border: "solid 1px black",
+      // border: "solid 1px black",
     },
-    set: {
-      display: "flex",
-      justifyContent: "center",
-      flexWrap: "wrap",
-      margin: "10px auto",
-      padding: "10px",
-    }
+    cardHolder: {
+      margin: "10px",
+    },
   }
 
   return (
@@ -52,98 +48,138 @@ function Sets() {
       {gameState.action === playerState.number && playerState.action === "declareSets" ? (
         <div style={style.setsContainer}>
 
-          <div 
+          <div
             style={style.setContainer}
-            onDragOver={handleDragOver}
-            onDrop={(e) => handleDrop(e, 0)}
           >
             <h6>Set 1</h6>
-            <div style={style.set}>
+            <CardContainer
+              width={determineSetWidth(playerState.sets[0])}
+              location={"sets.0"}
+            >
               {playerState.sets[0].length ? (
                 <>
                   {playerState.sets[0].map((card, index) => (
-                  <DraggableCard
-                    index={index}
-                    card={card}
-                    location={"sets.0"}
-                  />
+                    <div
+                      style={style.cardHolder}
+                      key={index}
+                    >
+                      <DraggableCard
+                        index={index}
+                        card={card}
+                        location={"sets.0"}
+                      />
+                    </div>
                   ))}
                 </>
               ) : (
-                <Card display="Add Here" suit="" />
+                <div
+                  style={style.cardHolder}
+                >
+                  <Card display="Add Here" suit="" />
+                </div>
               )}
-            </div>
+            </CardContainer>
           </div>
 
-          <div 
+          <div
             style={style.setContainer}
-            onDragOver={handleDragOver}
-            onDrop={(e) => handleDrop(e, 1)}
           >
             <h6>Set 2</h6>
-            <div style={style.set}>
+            <CardContainer
+              width={determineSetWidth(playerState.sets[1])}
+              location={"sets.1"}
+            >
               {playerState.sets[1].length ? (
                 <>
                   {playerState.sets[1].map((card, index) => (
-                  <DraggableCard
-                    index={index}
-                    card={card}
-                    location={"sets.1"}
-                  />
+                    <div
+                      style={style.cardHolder}
+                      key={index}
+                    >
+                      <DraggableCard
+                        index={index}
+                        card={card}
+                        location={"sets.1"}
+                      />
+                    </div>
                   ))}
                 </>
               ) : (
-                <Card display="Add Here" suit="" />
+                <div
+                  style={style.cardHolder}
+                >
+                  <Card display="Add Here" suit="" />
+                </div>
               )}
-            </div>
+            </CardContainer>
           </div>
 
-          <div 
+          <div
             style={style.setContainer}
-            onDragOver={handleDragOver}
-            onDrop={(e) => handleDrop(e, 2)}
           >
             <h6>Set 3</h6>
-            <div style={style.set}>
+            <CardContainer
+              width={determineSetWidth(playerState.sets[2])}
+              location={"sets.2"}
+            >
               {playerState.sets[2].length ? (
                 <>
                   {playerState.sets[2].map((card, index) => (
-                  <DraggableCard
-                    index={index}
-                    card={card}
-                    location={"sets.2"}
-                  />
+                    <div
+                      style={style.cardHolder}
+                      key={index}
+                    >
+                      <DraggableCard
+                        index={index}
+                        card={card}
+                        location={"sets.2"}
+                      />
+                    </div>
                   ))}
                 </>
               ) : (
-                <Card display="Add Here" suit="" />
+                <div
+                  style={style.cardHolder}
+                >
+                  <Card display="Add Here" suit="" />
+                </div>
               )}
-            </div>
+            </CardContainer>
           </div>
 
-          <div 
+          <div
             style={style.setContainer}
-            onDragOver={handleDragOver}
-            onDrop={(e) => handleDrop(e, 3)}
           >
             <h6>Unmatched</h6>
-            <div style={style.set}>
+            <CardContainer
+              width={determineSetWidth(playerState.sets[3])}
+              location={"sets.3"}
+            >
               {playerState.sets[3].length ? (
                 <>
                   {playerState.sets[3].map((card, index) => (
-                  <DraggableCard
-                    index={index}
-                    card={card}
-                    location={"sets.3"}
-                  />
+                    <div
+                      style={style.cardHolder}
+                      key={index}
+                    >
+                      <DraggableCard
+                        index={index}
+                        card={card}
+                        location={"sets.3"}
+                      />
+                    </div>
                   ))}
                 </>
               ) : (
-                <Card display="Add Here" suit="" />
+                <div
+                  style={style.cardHolder}
+                >
+                  <Card display="Add Here" suit="" />
+                </div>
               )}
-            </div>
+            </CardContainer>
           </div>
-          
+
         </div>
       ) : (
         <></>
