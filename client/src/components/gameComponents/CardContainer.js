@@ -1,11 +1,12 @@
 import React from "react";
 import { useGameContext } from "../../context/GameContext"
 
-function CardContainer({children, width, location}) {
+function CardContainer({children, width, location}) { //location is either a set or hand
   const {
-    gameState, setGameState,
+    gameState, updateGameState,
     playerState, setPlayerState,
     draggedCard, setDraggedCard,
+    dealCards, setGameState
   } = useGameContext()
 
   const handleDragOver = (e) => {
@@ -19,13 +20,11 @@ function CardContainer({children, width, location}) {
     if (e.currentTarget.getAttribute("location") === draggedCard.location) return
 
     //remove dragged card based on ref and index
-    console.log(e.currentTarget.getAttribute("location"))
     const draggedCardLocationArr = draggedCard.location.split(".") 
     let draggedCardSchema = playerState
     draggedCardLocationArr.forEach(ref => {
       draggedCardSchema = draggedCardSchema[ref]
     })
-    console.log(draggedCardSchema)
     const movedCard = draggedCardSchema.splice(draggedCard.index, 1)[0]
 
     //place card in target location
@@ -45,7 +44,25 @@ function CardContainer({children, width, location}) {
     })
   }
 
-   //DISPLAY
+  //DISPLAY
+
+  const borderColor = () => {
+    let currentLocationArr = location.split(".") 
+    
+    if (currentLocationArr[0] === "hand" && gameState.playerAction !== "declareSets") {
+      return "black"
+    }
+    //drill back one property and define location
+    currentLocationArr.pop()
+    let locationSchema = playerState
+    currentLocationArr.forEach(ref => {
+      locationSchema = locationSchema[ref]
+    })
+    if (locationSchema.valid === true) {
+      return "green"
+    }
+    return "red"
+  }
 
   const style = {
     cardContainer: {
@@ -53,7 +70,7 @@ function CardContainer({children, width, location}) {
       justifyContent: "center",
       flexWrap: "wrap",
       margin: "10px auto",
-      border: "solid 1px black",
+      border: "solid 3px " + borderColor(),
       backgroundColor: `rgb(245, 245, 255)`,
       width: width
     },

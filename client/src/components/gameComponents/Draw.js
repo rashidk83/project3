@@ -6,7 +6,11 @@ import DiscardPile from "./DiscardPile"
 import GoOut from "./GoOut"
 
 function Draw() {
-  const { gameState, playerState, setPlayerState } = useGameContext()
+  const { gameState, updateGameState,
+    playerState, setPlayerState,
+    draggedCard, setDraggedCard,
+    dealCards, setGameState 
+  } = useGameContext()
 
   //DISPLAY
 
@@ -23,10 +27,10 @@ function Draw() {
 
   return (
     <div style={style.draw}>
-      {gameState.action === playerState.number ? (
+      {gameState.action === playerState.number && gameState.playerAction !== "declareSets" ? (
         <div>
-          {playerState.action === "discard" ? (
-            <h2>Please Discard</h2>
+          {gameState.playerAction === "discard" ? (
+            <h2>Please Drag to Discard</h2>
           ) : (
             <h2>Please Draw</h2>
           )}

@@ -9,8 +9,8 @@ class Deck {
     this.deck = [];
 
     const suits = ['\u2665', '\u2660', '\u2663', '\u2666'];
-    const numbers = [1, 2, 3, 4, 5, 6, 7,]
-    // 8, 9, 10, 11, 12, 13];
+    const numbers = [1, 1, 1, 1, 1] //2, 3, 4, 5, 6]
+    // 7, 8, 9, 10, 11, 12, 13];
 
     suits.forEach(suitVal => {
       numbers.forEach(numberVal => {
@@ -40,16 +40,36 @@ export const GameProvider = ({ playerNum, children }) => {
     discard: [],
 
     action: "set-up", //"ready-to-deal", "1", "2", "force-quit", "game-ended"
+    playerAction: "play", // "discard", "declareSets"
     score: {
-      player1: 0,
-      player2: 0
+      player1: null,
+      player2: null 
     },
   })
   const [playerState, setPlayerState] = useState({
     number: playerNum,
-    hand: [],
-    sets: [[], [], [], []],
-    action: "play" // "discard", "declareSets"
+    hand: {
+      cards: [],
+      valid: false
+    },
+    sets: {
+      1: {
+        cards: [],
+        valid: true
+      },
+      2: {
+        cards: [],
+        valid: true
+      },     
+      3: {
+        cards: [],
+        valid: true
+      },     
+      unmatched: {
+        cards: [],
+        valid: true
+      },
+    },
   })
   const [draggedCard, setDraggedCard] = useState({ index: null })
 
@@ -90,19 +110,24 @@ export const GameProvider = ({ playerNum, children }) => {
     const hand1 = []
     const hand2 = []
 
-    for (var i = 0; i < 10; i++) {
+    for (var i = 0; i < 6; i++) {
       let randomNumber = (Math.floor(Math.random()*newDeck.deck.length))
       let dealtCard = newDeck.deck.splice(randomNumber, 1)
       hand1.push(dealtCard[0])
     }  
 
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 6; i++) {
       let randomNumber = (Math.floor(Math.random()*newDeck.deck.length))
       let dealtCard = newDeck.deck.splice(randomNumber, 1)
       hand2.push(dealtCard[0])
     }
 
-    playerState.hand = hand1
+    // console.log(hand1)
+    // console.log(hand2)
+    // console.log(newDeck)
+
+    playerState.hand.cards = hand1
+    console.log(playerState.hand.cards)
     setPlayerState({...playerState})
 
     const newState = {...gameState} 
@@ -110,10 +135,32 @@ export const GameProvider = ({ playerNum, children }) => {
     newState.action = "2"
     updateGameState({...newState})
 
-    const player2State = {...playerState}
-    player2State.hand = hand2
-    player2State.number = "2"
-    player2State.action = "play"
+    const player2State = {
+      number: "2",
+      hand: {
+        cards: hand2,
+        valid: false
+      },
+      sets: {
+        1: {
+          cards: [],
+          valid: true
+        },
+        2: {
+          cards: [],
+          valid: true
+        },     
+        3: {
+          cards: [],
+          valid: true
+        },     
+        unmatched: {
+          cards: [],
+          valid: true
+        },
+      },
+      action: "play" // "discard", "declareSets"
+    }
     updatePlayerState({...player2State})
   }
 
@@ -131,7 +178,7 @@ export const GameProvider = ({ playerNum, children }) => {
         gameState, updateGameState,
         playerState, setPlayerState,
         draggedCard, setDraggedCard,
-        dealCards
+        dealCards, setGameState
       }
     }>
       {children}

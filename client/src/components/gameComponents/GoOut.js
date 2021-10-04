@@ -2,11 +2,15 @@ import React from "react";
 import { useGameContext } from "../../context/GameContext"
 
 function GoOut() {
-  const { gameState, playerState, setPlayerState } = useGameContext()
+  const { gameState, updateGameState,
+    playerState, setPlayerState,
+    draggedCard, setDraggedCard,
+    dealCards, setGameState 
+  } = useGameContext()
 
   const handleGoOut = () => {
-    playerState.action = "declareSets"
-    setPlayerState({...playerState})
+    gameState.playerAction = "declareSets"
+    setGameState({...gameState})
   }
 
   // DISPLAY
@@ -27,7 +31,7 @@ function GoOut() {
 
   return (
     <div style={style.container}>
-      {gameState.action === playerState.number && playerState.action === "play" ? (
+      {gameState.action === playerState.number && gameState.playerAction === "play" ? (
         <div 
           style={style.goOut}
           onClick={handleGoOut}

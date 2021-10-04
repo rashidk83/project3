@@ -2,7 +2,11 @@ import React from "react";
 import { useGameContext } from "../../context/GameContext"
 
 function CurrentPlayerBanner() {
-  const { playerState } = useGameContext()
+  const { gameState, updateGameState,
+    playerState, setPlayerState,
+    draggedCard, setDraggedCard,
+    dealCards, setGameState 
+  } = useGameContext()
 
   //DISPLAY
 

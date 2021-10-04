@@ -14,6 +14,7 @@ function Game() {
     gameState, updateGameState,
     playerState, setPlayerState,
     draggedCard, setDraggedCard,
+    dealCards, setGameState
   } = useGameContext()
 
   useEffect(() => {

@@ -7,6 +7,7 @@ function DiscardPile() {
     gameState, updateGameState,
     playerState, setPlayerState,
     draggedCard, setDraggedCard,
+    dealCards, setGameState
   } = useGameContext()
 
   const handleDragOver = (e) => {
@@ -15,11 +16,11 @@ function DiscardPile() {
   }
 
   const handleDrop = (e) => {
-    const movedCard = playerState.hand.splice(draggedCard.index, 1)[0]
+    const movedCard = playerState.hand.cards.splice(draggedCard.index, 1)[0]
     gameState.discard.unshift(movedCard)
 
     //retrun to "play" state becasue card was discarded
-    playerState.action = "play"
+    gameState.playerAction = "play"
 
     //Passes Turn
     if (playerState.number === "1") {
@@ -27,56 +28,56 @@ function DiscardPile() {
     } else {
       gameState.action = "1"
     }
-    
-    updateGameState({...gameState})
-    setPlayerState({...playerState})
+
+    updateGameState({ ...gameState })
+    setPlayerState({ ...playerState })
     setDraggedCard({ index: null })
   }
 
   const handleDraw = () => {
-    const movedCard = gameState.discard.splice(0,1)[0]
+    const movedCard = gameState.discard.splice(0, 1)[0]
 
-    playerState.action = "discard"
-    playerState.hand.push(movedCard)
+    gameState.playerAction = "discard"
+    playerState.hand.cards.push(movedCard)
 
-    updateGameState({...gameState})
-    setPlayerState({...playerState})
+    setGameState({ ...gameState })
+    setPlayerState({ ...playerState })
   }
 
   //DISPLAY 
 
-  const ConditionalContainer = ({children}) => {
+  const ConditionalContainer = ({ children }) => {
     //If player's turn
     if (gameState.action === playerState.number) {
       //If 10 card's in Hand and discard not empty
-      if(playerState.action === "play" && gameState.discard.length !== 0) {
+      if (gameState.playerAction === "play" && gameState.discard.length !== 0) {
         return (
-          <div 
-            style={{cursor: "pointer"}}
+          <div
+            style={{ cursor: "pointer" }}
             onClick={handleDraw}
-          > 
-            {children} 
+          >
+            {children}
           </div>
         )
-      }
-      if(playerState.action === "discard") {
+      } 
+      if (gameState.playerAction === "discard") {
         return (
-          <div 
-            onDragOver={handleDragOver} 
+          <div
+            onDragOver={handleDragOver}
             onDrop={handleDrop}
-          > 
-            {children} 
+          >
+            {children}
           </div>
         )
       }
     }
-    
+
     return (
-      <div> 
-        {children} 
+      <div>
+        {children}
       </div>
     )
-    
+
   }
 
   const style = {

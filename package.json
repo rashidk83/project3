@@ -11,5 +11,7 @@
   },
   "author": "",
   "license": "ISC",
-  "dependencies": {}
+  "dependencies": {
+    "cypress": "^8.5.0"
+  }
 }

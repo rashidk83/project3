@@ -4,14 +4,19 @@ import { useGameContext } from "../../context/GameContext"
 import Card from "./Card"
 
 function Deck() {
-  const { gameState, playerState, setPlayerState } = useGameContext()
+  const { gameState, updateGameState,
+    playerState, setPlayerState,
+    draggedCard, setDraggedCard,
+    dealCards, setGameState 
+  } = useGameContext()
 
   const drawFromDeck = () => {
     let randomNumber = (Math.floor(Math.random() * gameState.deck.length))
     let drawnCard = gameState.deck.splice(randomNumber, 1)[0]
 
-    playerState.hand.push(drawnCard)
-    playerState.action = "discard"
+    playerState.hand.cards.push(drawnCard)
+    gameState.playerAction = "discard"
+    setGameState({...gameState})
     setPlayerState({ ...playerState })
   }
 
@@ -24,7 +29,7 @@ function Deck() {
 
   return (
     <div style={style.deck}>
-      {gameState.action === playerState.number && playerState.action === "play" ? (
+      {gameState.action === playerState.number && gameState.playerAction === "play" ? (
         <div 
           style={{ cursor: "pointer" }}
           onClick={drawFromDeck}
